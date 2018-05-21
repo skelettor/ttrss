@@ -1,0 +1,56 @@
+version: '3'
+
+volumes:
+ db:
+ ttrss:
+
+services:
+ db:
+  image: postgres
+  container_name: ttrss-db
+  restart: unless-stopped
+  volumes:
+    - db:/var/lib/postgresql/data
+  env_file:
+    - db.env
+
+ ttrss:
+  build: ./ttrss
+  container_name: ttrss
+  restart: unless-stopped
+  volumes:
+    - ttrss:/var/www/ttrss
+  dns:
+    - 1.1.1.1
+    - 9.9.9.9
+  depends_on:
+    - db
+
+ updater:
+  build: ./ttrss
+  container_name: ttrss-updater
+  restart: unless-stopped
+  dns:
+    - 1.1.1.1
+    - 9.9.9.9
+  volumes:
+    - ttrss:/var/www/ttrss
+  user: nginx
+  command: php ./update_daemon2.php
+  depends_on:
+    - db
+    - ttrss
+
+ nginx:
+  build: ./nginx
+  container_name: ttrss-nginx
+  restart: unless-stopped
+  volumes:
+    - ttrss:/var/www/ttrss:ro
+  dns:
+    - 1.1.1.1
+    - 9.9.9.9
+  ports:
+    - "8080:80"
+  depends_on:
+    - ttrss
