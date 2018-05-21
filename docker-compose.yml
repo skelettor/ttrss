@@ -15,7 +15,7 @@ services:
     - db.env
 
  ttrss:
-  build: ./ttrss
+  image: skelettor/ttrss
   container_name: ttrss
   restart: unless-stopped
   volumes:
@@ -27,7 +27,7 @@ services:
     - db
 
  updater:
-  build: ./ttrss
+  image: skelettor/ttrss
   container_name: ttrss-updater
   restart: unless-stopped
   dns:
